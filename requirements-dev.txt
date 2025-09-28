@@ -1,0 +1,21 @@
+# Development and testing dependencies
+-r requirements.txt
+
+# Testing
+pytest>=6.0
+pytest-django>=4.0
+pytest-cov>=2.10
+
+# Code quality
+black>=21.0
+flake8>=3.8
+isort>=5.0
+mypy>=0.800
+
+# Security
+safety>=2.0
+bandit>=1.7
+
+# Additional testing tools
+pytest-xdist>=2.0  # For parallel test execution
+pytest-mock>=3.0   # For advanced mocking

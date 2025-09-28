@@ -1,0 +1,49 @@
+version: 2
+updates:
+  # Enable version updates for pip
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "summon.agus"
+    assignees:
+      - "summon.agus"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "python"
+    ignore:
+      # Ignore major version updates for Django to prevent breaking changes
+      - dependency-name: "django"
+        update-types: ["version-update:semver-major"]
+      # Ignore major version updates for DRF
+      - dependency-name: "djangorestframework"
+        update-types: ["version-update:semver-major"]
+      # Ignore major version updates for Google Cloud libraries
+      - dependency-name: "google-cloud-recaptcha-enterprise"
+        update-types: ["version-update:semver-major"]
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "summon.agus"
+    assignees:
+      - "summon.agus"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"

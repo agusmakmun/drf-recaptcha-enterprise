@@ -1,0 +1,29 @@
+# Django and Django REST Framework
+Django>=4.2,<5.0
+djangorestframework>=3.14.0
+
+# reCAPTCHA Enterprise package (local development)
+-e ../
+
+# Google Cloud dependencies
+google-cloud-recaptcha-enterprise>=1.0.0
+
+# Environment management
+python-decouple>=3.8
+
+# Database (optional - for production)
+psycopg2-binary>=2.9.0
+
+# Development dependencies
+pytest>=7.0.0
+pytest-django>=4.5.0
+pytest-cov>=4.0.0
+black>=23.0.0
+flake8>=6.0.0
+isort>=5.12.0
+
+# Static file handling
+whitenoise>=6.0.0
+
+# CORS handling (for frontend integration)
+django-cors-headers>=4.0.0

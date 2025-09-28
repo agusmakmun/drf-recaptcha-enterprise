@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Success - Django reCAPTCHA Enterprise Demo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h2 class="card-title text-success">Success!</h2>
+                <p class="card-text">
+                    Your contact form has been submitted successfully and passed reCAPTCHA Enterprise validation.
+                </p>
+                <p class="text-muted">
+                    The form was validated using Google's reCAPTCHA Enterprise service,
+                    ensuring it was submitted by a human user.
+                </p>
+                <a href="{% url 'contact:contact-form' %}" class="btn btn-primary">
+                    Submit Another Form
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

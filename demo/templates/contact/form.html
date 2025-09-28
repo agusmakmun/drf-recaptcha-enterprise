@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Form - Django reCAPTCHA Enterprise Demo{% endblock %}
+
+{% block extra_css %}
+<style>
+    .recaptcha-container {
+        margin: 1rem 0;
+    }
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    .api-example {
+        background: #e9ecef;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    pre {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        overflow-x: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="form-section">
+            <h2>Contact Form with reCAPTCHA Enterprise</h2>
+            <p class="text-muted">
+                This form demonstrates reCAPTCHA Enterprise integration with Django REST Framework.
+                The form validates the reCAPTCHA token on the server side before processing.
+            </p>
+            
+            <form id="contact-form" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name *</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message *</label>
+                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                </div>
+                
+                <div class="recaptcha-container">
+                    <div id="recaptcha-container"></div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
+                    Submit Form
+                </button>
+            </form>
+        </div>
+        
+        <div class="api-example">
+            <h4>API Usage Example</h4>
+            <p>You can also submit the form via API:</p>
+            <pre><code>curl -X POST http://127.0.0.1:8000/api/contact/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "message": "Hello, this is a test message.",
+    "recaptcha_token": "YOUR_RECAPTCHA_TOKEN"
+  }'</code></pre>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>reCAPTCHA Enterprise Info</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Site Key:</strong> <code>{{ site_key }}</code></p>
+                <p><strong>Project ID:</strong> Configured in settings</p>
+                <p><strong>Min Score:</strong> 0.5 (configurable)</p>
+                <p><strong>Expected Action:</strong> submit</p>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Features Demonstrated</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li>✅ reCAPTCHA Enterprise v1</li>
+                    <li>✅ Score-based validation</li>
+                    <li>✅ Action-based validation</li>
+                    <li>✅ Django REST Framework</li>
+                    <li>✅ Server-side validation</li>
+                    <li>✅ Error handling</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://www.google.com/recaptcha/enterprise.js?render={{ site_key }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contact-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const siteKey = '{{ site_key }}';
+    
+    if (!siteKey) {
+        console.error('reCAPTCHA site key not configured');
+        return;
+    }
+    
+    // Initialize reCAPTCHA Enterprise
+    grecaptcha.enterprise.ready(function() {
+        console.log('reCAPTCHA Enterprise ready');
+        submitBtn.disabled = false;
+    });
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Disable submit button to prevent double submission
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+        
+        // Execute reCAPTCHA
+        grecaptcha.enterprise.execute(siteKey, {action: 'submit'}).then(function(token) {
+            // Add token to form data
+            const formData = new FormData(form);
+            formData.append('recaptcha_token', token);
+            
+            // Submit form via API
+            fetch('/api/contact/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    // Success
+                    alert('Form submitted successfully! Score: ' + data.recaptcha_score);
+                    form.reset();
+                } else {
+                    // Error
+                    console.error('Form submission failed:', data);
+                    alert('Form submission failed. Please check the console for details.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            })
+            .finally(() => {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Form';
+            });
+        }).catch(function(error) {
+            console.error('reCAPTCHA error:', error);
+            alert('reCAPTCHA verification failed. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Form';
+        });
+    });
+});
+</script>
+{% endblock %}
