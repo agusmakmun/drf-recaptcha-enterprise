@@ -83,6 +83,25 @@ This document describes the Continuous Integration and Continuous Deployment (CI
 - Manual review for major updates
 - Automated testing for dependency changes
 
+### 5. CodeQL Security Analysis (`.github/workflows/codeql.yml`)
+
+**Purpose**: Static code analysis for security vulnerabilities
+
+**Features:**
+- Automated security scanning
+- Weekly scheduled runs
+- Pull request analysis
+- Security alerts and notifications
+
+### 6. Dependency Review (`.github/workflows/dependency-review.yml`)
+
+**Purpose**: Review dependency changes in pull requests
+
+**Features:**
+- Vulnerability detection in new dependencies
+- License compliance checking
+- Security policy enforcement
+
 ## 📋 Requirements Files
 
 ### `requirements.txt`
@@ -92,13 +111,15 @@ Core package dependencies:
 - Google Cloud reCAPTCHA Enterprise >= 1.0.0
 - Requests >= 2.25.0
 
+**Note**: This file also includes development dependencies for convenience.
+
 ### `requirements-dev.txt`
 Development and testing dependencies:
-- All core dependencies
+- Includes all core dependencies via `-r requirements.txt`
 - Testing tools (pytest, pytest-django, pytest-cov)
 - Code quality tools (black, flake8, isort, mypy)
 - Security tools (safety, bandit)
-- Additional testing utilities
+- Additional testing utilities (pytest-xdist, pytest-mock)
 
 ## 🧪 Test Configuration
 
@@ -106,17 +127,17 @@ Development and testing dependencies:
 ```
 drf_recaptcha_enterprise/tests/
 ├── conftest.py              # Pytest fixtures and configuration
-├── test_client.py           # Client module tests (33 tests)
-├── test_fields.py           # Fields module tests (22 tests)
-├── test_serializers.py      # Serializers module tests (18 tests)
-├── test_validators.py       # Validators module tests (25 tests)
-├── test_utils.py            # Utility functions tests (8 tests)
-└── README.md               # Test documentation
+├── test_client.py           # Client module tests
+├── test_fields.py           # Fields module tests
+├── test_serializers.py      # Serializers module tests
+├── test_validators.py       # Validators module tests
+├── test_utils.py            # Utility functions tests
+└── README.md                # Test documentation
 ```
 
 ### Test Execution
-- **Total Tests**: 118 tests
-- **Coverage**: 96.82%
+- **Total Tests**: 119 tests (118 passed, 1 skipped)
+- **Coverage**: 97% (314 lines, 10 missing)
 - **Execution Time**: ~12 seconds
 - **Pure Unit Tests**: No Django runtime dependencies
 
@@ -206,7 +227,7 @@ exclude_lines =
 - **Types**: mypy for static type checking
 
 ### Test Quality
-- **Coverage**: 96.82% (exceeds 80% requirement)
+- **Coverage**: 97% (exceeds 80% requirement)
 - **Test Types**: Pure unit tests (no Django runtime)
 - **Mocking**: Comprehensive external service mocking
 - **Fixtures**: Reusable test data and mock objects
@@ -214,6 +235,8 @@ exclude_lines =
 ### Security
 - **Dependencies**: Safety vulnerability scanning
 - **Code**: Bandit security analysis
+- **Static Analysis**: CodeQL security scanning
+- **Dependency Review**: Automated dependency change review
 - **Updates**: Automated dependency updates
 
 ## 🔍 Monitoring and Alerts
