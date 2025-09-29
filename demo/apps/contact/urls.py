@@ -17,12 +17,21 @@ router.register(
 )
 
 urlpatterns = [
-    # API endpoints
-    path("", views.contact_form_submit, name="contact-form-submit"),  # POST
-    path("list/", views.contact_list, name="contact-list"),  # GET
+    # Template-based views
+    path("", views.ContactFormView.as_view(), name="contact-form"),  # Root - GET form
+    path("form/", views.ContactFormView.as_view(), name="contact-form-alt"),  # GET form
     path(
-        "<int:pk>/", views.contact_detail, name="contact-detail"
+        "submit/", views.contact_form_submit_template, name="contact-submit"
+    ),  # POST form
+    path(
+        "success/", views.ContactSuccessView.as_view(), name="success"
+    ),  # Success page
+    # API endpoints (these will be under /api/contact/)
+    path("api/", views.contact_form_submit, name="contact-form-submit"),  # POST
+    path("api/list/", views.contact_list, name="contact-list"),  # GET
+    path(
+        "api/<int:pk>/", views.contact_detail, name="contact-detail"
     ),  # GET specific contact
     # Include ViewSet routes
-    path("", include(router.urls)),
+    path("api/", include(router.urls)),
 ]

@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    # "django.contrib.staticfiles",  # Disabled for pure API
+    "django.contrib.staticfiles",  # Re-enabled for Django admin
     "rest_framework",
     "corsheaders",
     "drf_recaptcha_enterprise",
@@ -40,7 +40,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    # "whitenoise.middleware.WhiteNoiseMiddleware",  # Disabled for pure API
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Re-enabled for static file serving
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -55,7 +55,7 @@ ROOT_URLCONF = "demo_project.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -103,10 +103,10 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# Static files removed - using pure REST API
-# STATIC_URL = "/static/"
-# STATIC_ROOT = BASE_DIR / "staticfiles"
-# STATICFILES_DIRS = [BASE_DIR / "static"]
+# Static files configuration
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Media files
 MEDIA_URL = "/media/"

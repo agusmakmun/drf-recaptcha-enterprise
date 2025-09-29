@@ -39,21 +39,34 @@
                 The form validates the reCAPTCHA token on the server side before processing.
             </p>
             
-            <form id="contact-form" method="post">
+            <form id="contact-form" method="post" action="{% url 'contact:contact-submit' %}">
                 {% csrf_token %}
+                
+                <!-- Display messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
                 <div class="mb-3">
                     <label for="name" class="form-label">Name *</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
+                    <input type="text" class="form-control" id="name" name="name" 
+                           value="{% if form_data.name %}{{ form_data.name }}{% endif %}" required>
                 </div>
                 
                 <div class="mb-3">
                     <label for="email" class="form-label">Email *</label>
-                    <input type="email" class="form-control" id="email" name="email" required>
+                    <input type="email" class="form-control" id="email" name="email" 
+                           value="{% if form_data.email %}{{ form_data.email }}{% endif %}" required>
                 </div>
                 
                 <div class="mb-3">
                     <label for="message" class="form-label">Message *</label>
-                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                    <textarea class="form-control" id="message" name="message" rows="5" required>{% if form_data.message %}{{ form_data.message }}{% endif %}</textarea>
                 </div>
                 
                 <div class="recaptcha-container">
@@ -140,39 +153,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Execute reCAPTCHA
         grecaptcha.enterprise.execute(siteKey, {action: 'submit'}).then(function(token) {
-            // Add token to form data
-            const formData = new FormData(form);
-            formData.append('recaptcha_token', token);
+            // Add token to form as hidden input
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'recaptcha_token';
+            tokenInput.value = token;
+            form.appendChild(tokenInput);
             
-            // Submit form via API
-            fetch('/api/contact/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    // Success
-                    alert('Form submitted successfully! Score: ' + data.recaptcha_score);
-                    form.reset();
-                } else {
-                    // Error
-                    console.error('Form submission failed:', data);
-                    alert('Form submission failed. Please check the console for details.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-            })
-            .finally(() => {
-                // Re-enable submit button
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit Form';
-            });
+            // Submit the form normally (let Django handle it)
+            form.submit();
+            
         }).catch(function(error) {
             console.error('reCAPTCHA error:', error);
             alert('reCAPTCHA verification failed. Please try again.');

@@ -148,18 +148,22 @@ class ContactFormHandler extends RecaptchaDemo {
 
     async handleSubmit() {
         try {
-            const result = await this.submitForm(this.form, '/api/contact/');
+            // Execute reCAPTCHA first
+            const token = await this.execute();
             
-            if (result.success) {
-                this.showMessage(
-                    `Form submitted successfully! reCAPTCHA Score: ${result.data.recaptcha_score}`,
-                    'success'
-                );
-                this.form.reset();
-            }
+            // Add the token to the form
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'recaptcha_token';
+            tokenInput.value = token;
+            this.form.appendChild(tokenInput);
+            
+            // Submit the form normally (let Django handle it)
+            this.form.submit();
+            
         } catch (error) {
             this.showMessage(
-                `Form submission failed: ${error.message}`,
+                `reCAPTCHA failed: ${error.message}`,
                 'danger'
             );
         }

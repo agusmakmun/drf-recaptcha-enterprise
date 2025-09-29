@@ -7,6 +7,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.conf import settings
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.views.generic import TemplateView
 from .models import ContactSubmission
 from .serializers import ContactFormSerializer, ContactSubmissionSerializer
 
@@ -113,3 +116,92 @@ class ContactSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContactSubmission.objects.all()
     serializer_class = ContactSubmissionSerializer
     permission_classes = [AllowAny]
+
+
+# Template-based views
+class ContactFormView(TemplateView):
+    """Display the contact form."""
+
+    template_name = "contact/form.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "site_key": settings.RECAPTCHA_ENTERPRISE_SITE_KEY,
+                "api_url": "/api/contact/",
+            }
+        )
+        return context
+
+
+def contact_form_submit_template(request):
+    """Handle contact form submission from template."""
+    if request.method == "POST":
+        # Get form data
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        message = request.POST.get("message")
+        recaptcha_token = request.POST.get("recaptcha_token")
+
+        # Validate required fields
+        if not all([name, email, message, recaptcha_token]):
+            messages.error(request, "All fields are required.")
+            return render(
+                request,
+                "contact/form.html",
+                {
+                    "site_key": settings.RECAPTCHA_ENTERPRISE_SITE_KEY,
+                    "api_url": "/api/contact/",
+                },
+            )
+
+        # Use the serializer to validate and create
+        serializer = ContactFormSerializer(
+            data={
+                "name": name,
+                "email": email,
+                "message": message,
+                "recaptcha_token": recaptcha_token,
+            }
+        )
+
+        if serializer.is_valid():
+            # Create the contact submission
+            contact = serializer.save()
+            messages.success(
+                request,
+                f"Thank you for your message! Your submission ID is {contact.id}.",
+            )
+            return redirect("contact:success")
+        else:
+            # Handle validation errors
+            for field, errors in serializer.errors.items():
+                for error in errors:
+                    if field == "recaptcha_token":
+                        messages.error(request, f"reCAPTCHA validation failed: {error}")
+                    else:
+                        messages.error(request, f"{field}: {error}")
+
+            return render(
+                request,
+                "contact/form.html",
+                {
+                    "site_key": settings.RECAPTCHA_ENTERPRISE_SITE_KEY,
+                    "api_url": "/api/contact/",
+                    "form_data": {
+                        "name": name,
+                        "email": email,
+                        "message": message,
+                    },
+                },
+            )
+
+    # GET request - show the form
+    return ContactFormView.as_view()(request)
+
+
+class ContactSuccessView(TemplateView):
+    """Display success page after form submission."""
+
+    template_name = "contact/success.html"

@@ -12,6 +12,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", api_info, name="api-info"),  # API information endpoint
     path("api/contact/", include("apps.contact.urls")),  # Contact API
+    path("", include("apps.contact.urls")),  # Contact form pages (must be last)
 ]
 
 # Serve media files during development (for file uploads if needed)
